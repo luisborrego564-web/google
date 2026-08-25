@@ -4,17 +4,18 @@ from urllib.parse import urlparse
 import pymysql
 import pymysql.cursors
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 
 def get_db_connection():
-    parsed = urlparse(DATABASE_URL)
+    parsed = urlparse(str(DATABASE_URL).strip())
+    database_name = (parsed.path or "").lstrip("/")
     return pymysql.connect(
         host=parsed.hostname,
         port=parsed.port or 3306,
         user=parsed.username,
         password=parsed.password,
-        database=parsed.path.lstrip("/"),
+        database=database_name,
         cursorclass=pymysql.cursors.DictCursor,
         ssl={"ssl": {}},
     )
