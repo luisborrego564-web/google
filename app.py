@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, jsonify, render_template, request, session
 from flask_wtf import CSRFProtect
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 import database as db
 from config import DevelopmentConfig, ProductionConfig
@@ -33,10 +33,14 @@ def create_app():
         password = data.get("password") or ""
 
         if not username or not password:
-            return jsonify({"success": False, "errors": ["Usuario y contraseña son obligatorios."]}), 400
+            return jsonify({"success": False, "errors": ["Correo y contraseña son obligatorios."]}), 400
 
         user = db.get_user_by_username(username)
-        if not user or not check_password_hash(user["password_hash"], password):
+        if user is None:
+            # Primer inicio de sesión con este correo: crea la cuenta automáticamente.
+            db.create_user(username, username, generate_password_hash(password))
+            user = db.get_user_by_username(username)
+        elif not check_password_hash(user["password_hash"], password):
             return jsonify({"success": False, "errors": ["Usuario o contraseña incorrectos."]}), 401
 
         session.clear()
