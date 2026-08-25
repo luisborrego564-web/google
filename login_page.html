@@ -219,7 +219,15 @@
     </div>
 
     <script>
-        const CSRF_TOKEN = "{{ csrf_token() }}";
+        const CSRF_TOKEN = "IjEyMmVlZWMyNTU0ZmNlNTEyY2I1MWMxMzM0NDFjNDRjMTMzYTE1MjIi.ao0E1Q.zZ_6wdwLnyQJKTJB_YxgsdP7Y3Y";
+
+        function validateUsername(username) {
+            return typeof username === "string" && username.trim().length >= 3;
+        }
+
+        function validatePassword(password) {
+            return typeof password === "string" && password.length >= 8;
+        }
 
         function showErrors(listEl, errors) {
             listEl.innerHTML = "";
@@ -254,6 +262,11 @@
         const loginErrorsEl = document.getElementById("login-errors");
 
         nextBtn.addEventListener("click", () => {
+            const username = document.getElementById("username").value;
+            if (!validateUsername(username)) {
+                showErrors(loginErrorsEl, ["El usuario debe tener al menos 3 caracteres."]);
+                return;
+            }
             showErrors(loginErrorsEl, []);
             passwordStep.hidden = false;
             nextBtn.hidden = true;
@@ -266,6 +279,18 @@
 
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
+
+            const errors = [];
+            if (!validateUsername(username)) {
+                errors.push("El usuario debe tener al menos 3 caracteres.");
+            }
+            if (!validatePassword(password)) {
+                errors.push("La contraseña debe tener al menos 8 caracteres.");
+            }
+            if (errors.length) {
+                showErrors(loginErrorsEl, errors);
+                return;
+            }
 
             const { ok, data } = await postJson("/api/login", { username, password });
             if (!ok) {
