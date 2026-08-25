@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Registro{% endblock %}
+{% block content %}
+<div class="card">
+    <h1>Crear cuenta</h1>
+    <form id="register-form" novalidate>
+        <label for="username">Usuario</label>
+        <input type="text" id="username" name="username" required minlength="3" autocomplete="username">
+
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+
+        <ul id="register-errors" class="errors" hidden></ul>
+
+        <button type="submit">Registrarme</button>
+    </form>
+    <p>¿Ya tienes cuenta? <a href="{{ url_for('login_page') }}">Inicia sesión</a></p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/validation.js') }}"></script>
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+{% endblock %}

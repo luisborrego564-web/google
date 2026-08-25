@@ -1,0 +1,220 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Google Sans', Roboto, system-ui, Arial, sans-serif;
+    background: #eef1f5;
+    margin: 0;
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+}
+
+.card {
+    background: #fff;
+    max-width: 380px;
+    margin: 0 auto;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+h1 {
+    margin-top: 0;
+    font-size: 1.4rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+label {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+input:invalid:not(:placeholder-shown) {
+    border-color: #d33;
+}
+
+button {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 0.6rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+.errors {
+    color: #d33;
+    font-size: 0.85rem;
+    margin: 0.25rem 0;
+    padding-left: 1.1rem;
+}
+
+.errors[hidden] {
+    display: none;
+}
+
+/* Página de login estilo "Google Sign-in" con marca propia (Zplix) */
+.logo {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.logo img {
+    width: 48px;
+    height: 48px;
+}
+
+.content {
+    background: #fff;
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 3rem 2.5rem 2rem;
+    border-radius: 28px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 4px 20px rgba(0, 0, 0, 0.06);
+    text-align: center;
+}
+
+.content h1 {
+    font-size: 1.6rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+}
+
+.content > p {
+    color: #444;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.content form {
+    text-align: left;
+    margin-top: 1.5rem;
+}
+
+.field-step input {
+    padding: 0.85rem 0.9rem;
+    font-size: 1rem;
+    margin-bottom: 0;
+    border-color: #747775;
+    border-radius: 4px;
+}
+
+.content form button {
+    align-self: flex-end;
+    border-radius: 999px;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    width: auto;
+}
+
+.forgot-email {
+    display: block;
+    color: #2563eb;
+    font-size: 0.85rem;
+    text-decoration: none;
+    text-align: left;
+    margin-top: 0.75rem;
+}
+
+.forgot-email:hover {
+    text-decoration: underline;
+}
+
+.guest-note {
+    color: #444;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    text-align: left;
+    margin: 1.5rem 0 0;
+}
+
+.guest-note a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.guest-note a:hover {
+    text-decoration: underline;
+}
+
+.create-account {
+    display: block;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    text-align: left;
+    margin-top: 1.5rem;
+}
+
+.create-account:hover {
+    text-decoration: underline;
+}
+
+.footer {
+    max-width: 450px;
+    margin: 1.25rem auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #444;
+}
+
+.footer a {
+    color: #444;
+    text-decoration: none;
+    margin-left: 1.5rem;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+.dropdown-arrow {
+    font-size: 0.6rem;
+}
+
+@media (max-width: 500px) {
+    .content,
+    .footer {
+        max-width: 90vw;
+    }
+}
+
