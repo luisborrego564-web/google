@@ -5,6 +5,6 @@ venv/
 .env
 app.db
 instance/
-cookies.txt
-login_page.html
+cookies*.txt
+login_page*.html
 login_result*.json
