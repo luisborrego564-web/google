@@ -5,3 +5,5 @@ venv/
 .env
 app.db
 instance/
+cookies.txt
+login_page.html
