@@ -1,59 +1,69 @@
-# Zplix — Sistema de login/registro (Flask + SQLite)
+# Zplix — Login con auto-registro (Flask + MySQL)
 
-Aplicación web de ejemplo que cubre: HTML/CSS, JavaScript, campos de entrada,
-validación (cliente y servidor), Fetch API, endpoints, base de datos SQL,
-Python/Flask, rutas, protección CSRF, y notas para HTTPS/hosting/dominio.
+Aplicación web mínima: una única página de login (`templates/login.html`,
+HTML+CSS+JS embebidos en el mismo archivo) que autentica contra una base de
+datos MySQL. Si el correo no existe, la cuenta se crea automáticamente en
+el primer inicio de sesión.
 
 ## Estructura
 
 ```
-app.py              # Rutas y endpoints Flask
-config.py           # Configuración (desarrollo/producción)
-database.py         # Conexión SQLite y consultas SQL parametrizadas
-schema.sql           # Definición de la tabla users
-templates/           # Vistas HTML (Jinja2)
-static/css/          # Estilos
-static/js/           # Validación de campos y llamadas Fetch a los endpoints
+app.py         # App Flask: rutas y endpoints
+config.py      # Configuración (desarrollo/producción)
+database.py    # Conexión MySQL (PyMySQL) y consultas SQL parametrizadas
+schema.sql     # Definición de la tabla users (referencia)
+templates/
+  login.html   # Única página: HTML + <style> + <script> en un solo archivo
 ```
 
-## Puesta en marcha
+## Base de datos: MySQL (Aiven)
+
+El proyecto usa un `DATABASE_URL` de un MySQL gestionado (recomendado:
+[aiven.io](https://aiven.io), plan gratuito) para que los datos sobrevivan
+a reinicios/redeploys, a diferencia de un archivo SQLite local en hosting
+gratuito (que se pierde en cada redeploy).
+
+1. Crea una cuenta gratis en aiven.io y un servicio **MySQL** (no Kafka).
+2. En "Overview" → "Connection information", copia el "Service URI"
+   (`mysql://usuario:password@host:puerto/defaultdb?ssl-mode=REQUIRED`).
+3. Local: copia `.env.example` a `.env` y pega el valor en `DATABASE_URL`.
+4. Producción (Render): agrégalo como variable de entorno `DATABASE_URL`
+   en el dashboard del servicio (Settings → Environment).
+
+## Puesta en marcha local
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-copy .env.example .env    # ajusta SECRET_KEY
+copy .env.example .env    # ajusta SECRET_KEY y DATABASE_URL
 python app.py
 ```
 
-Abre http://127.0.0.1:5000/register para crear un usuario y luego inicia
-sesión en http://127.0.0.1:5000/login.
+Abre http://127.0.0.1:5000/ — escribe cualquier correo y contraseña: si el
+correo no existe se crea la cuenta al momento; si ya existe, debe coincidir
+la contraseña.
 
 ## Endpoints
 
-| Método | Ruta            | Descripción                          |
-|--------|-----------------|---------------------------------------|
-| GET    | `/login`        | Página de inicio de sesión            |
-| GET    | `/register`     | Página de registro                    |
-| GET    | `/dashboard`    | Página protegida (requiere sesión)    |
-| POST   | `/api/login`    | Autentica usuario (JSON)              |
-| POST   | `/api/register` | Crea un usuario nuevo (JSON)          |
-| POST   | `/api/logout`   | Cierra la sesión                      |
+| Método | Ruta            | Descripción                                    |
+|--------|-----------------|-------------------------------------------------|
+| GET    | `/`, `/login`   | Página de login (HTML/CSS/JS autocontenidos)     |
+| POST   | `/api/login`    | Autentica o crea la cuenta en el primer login    |
+| POST   | `/api/logout`   | Cierra la sesión                                 |
 
 ## Validación
 
-- **Cliente**: `static/js/validation.js` valida usuario, correo y contraseña
-  antes de enviar la petición, y los `input required/minlength` del HTML dan
-  una primera capa de validación nativa del navegador.
-- **Servidor**: `app.py` vuelve a validar todos los campos (nunca confiar
-  solo en JS) y `database.py` usa consultas SQL parametrizadas (`?`) para
-  evitar inyección SQL.
+- **Servidor** (`app.py`): exige que usuario y contraseña no estén vacíos,
+  y usa consultas SQL parametrizadas (`%s`) en `database.py` para evitar
+  inyección SQL.
+- No hay validación de formato/longitud en el cliente (se quitó a pedido).
 
 ## Protección CSRF
 
-`Flask-WTF` (`CSRFProtect`) protege todas las rutas `POST`. El token se
-genera en `templates/base.html` (`<meta name="csrf-token">`) y el JS lo
-envía en la cabecera `X-CSRFToken` en cada `fetch`.
+`Flask-WTF` (`CSRFProtect`) protege la ruta `POST /api/login` y `/api/logout`.
+El token se genera con `{{ csrf_token() }}` dentro de `login.html` y el JS
+embebido lo envía en la cabecera `X-CSRFToken` en cada `fetch`.
 
 ## HTTPS, hosting y dominio (para producción)
 
@@ -67,19 +77,13 @@ El repo ya incluye `Procfile` y `render.yaml` listos para desplegar:
 3. Render detecta `render.yaml` automáticamente (build: `pip install -r
    requirements.txt`, start: `gunicorn app:app`). La variable `SECRET_KEY`
    se genera sola y `FLASK_ENV=production` ya queda configurado.
-4. Al terminar el despliegue obtienes una URL gratuita del tipo
-   `https://zplix.onrender.com` con **certificado TLS válido y confiable
-   (Let's Encrypt), emitido y renovado automáticamente por Render** — sin
-   pagar dominio ni certificado.
-5. (Opcional, de pago) Si más adelante compras un dominio propio, puedes
-   añadirlo en Render → Settings → Custom Domain, y Render emite un
-   certificado Let's Encrypt también para ese dominio.
-
-> Nota: la base de datos SQLite (`app.db`) vive en el disco del servicio.
-> En el plan gratuito de Render el disco es efímero (se reinicia con cada
-> despliegue). Para persistencia real a largo plazo, usa un plan con disco
-> persistente o migra a una base de datos gestionada (Render ofrece
-> PostgreSQL gratuito por tiempo limitado).
+4. Agrega manualmente la variable de entorno `DATABASE_URL` (tu Service URI
+   de Aiven) en Render → Settings → Environment.
+5. Obtienes una URL gratuita del tipo `https://zplix.onrender.com` con
+   **certificado TLS válido y confiable (Let's Encrypt)**, emitido y
+   renovado automáticamente por Render — sin pagar dominio ni certificado.
+6. (Opcional, de pago) Si más adelante compras un dominio propio, puedes
+   añadirlo en Render → Settings → Custom Domain.
 
 ### Otras opciones (todas con HTTPS automático)
 
@@ -91,8 +95,8 @@ El repo ya incluye `Procfile` y `render.yaml` listos para desplegar:
 
 ### Variables de entorno en producción
 
-Define `SECRET_KEY` y `FLASK_ENV=production` en el entorno del servidor
-(no los subas al repositorio). Con `FLASK_ENV=production`,
-`SESSION_COOKIE_SECURE=True` obliga a que las cookies de sesión solo
-viajen por HTTPS.
+Define `SECRET_KEY`, `FLASK_ENV=production` y `DATABASE_URL` en el entorno
+del servidor (nunca los subas al repositorio; `.env` está en `.gitignore`).
+Con `FLASK_ENV=production`, `SESSION_COOKIE_SECURE=True` obliga a que las
+cookies de sesión solo viajen por HTTPS.
 

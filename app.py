@@ -1,5 +1,9 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from flask import Flask, jsonify, render_template, request, session
 from flask_wtf import CSRFProtect
 from werkzeug.security import check_password_hash, generate_password_hash
