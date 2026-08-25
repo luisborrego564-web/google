@@ -1,34 +1,43 @@
-import sqlite3
-from pathlib import Path
+import os
 
-DB_PATH = Path(__file__).parent / "app.db"
-SCHEMA_PATH = Path(__file__).parent / "schema.sql"
+import psycopg2
+import psycopg2.extras
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 
 def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    return psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
 
 
 def init_db():
     conn = get_db_connection()
-    conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
-    conn.commit()
+    with conn, conn.cursor() as cur:
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            """
+        )
     conn.close()
 
 
 def create_user(username, email, password_hash):
     conn = get_db_connection()
     try:
-        conn.execute(
-            "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-            (username, email, password_hash),
-        )
-        conn.commit()
+        with conn, conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)",
+                (username, email, password_hash),
+            )
         return True
-    except sqlite3.IntegrityError:
+    except psycopg2.IntegrityError:
+        conn.rollback()
         return False
     finally:
         conn.close()
@@ -36,17 +45,18 @@ def create_user(username, email, password_hash):
 
 def get_user_by_username(username):
     conn = get_db_connection()
-    user = conn.execute(
-        "SELECT * FROM users WHERE username = ?", (username,)
-    ).fetchone()
+    with conn.cursor() as cur:
+        cur.execute("SELECT * FROM users WHERE username = %s", (username,))
+        user = cur.fetchone()
     conn.close()
     return user
 
 
 def get_user_by_email(email):
     conn = get_db_connection()
-    user = conn.execute(
-        "SELECT * FROM users WHERE email = ?", (email,)
-    ).fetchone()
+    with conn.cursor() as cur:
+        cur.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cur.fetchone()
+
     conn.close()
     return user
