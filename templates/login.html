@@ -1,35 +1,308 @@
-{% extends "base.html" %}
-{% block title %}Accede a tu cuenta{% endblock %}
-{% block content %}
-<div class="logo">
-    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Zplix">
-</div>
-<div class="content">
-    <h1>Accede a tu cuenta</h1>
-    <p>con tu cuenta de Zplix. Esta cuenta estará disponible para otras apps de Zplix en el navegador.</p>
-    <form id="loginForm" novalidate>
-        <div class="field-step" data-step="username">
-            <input type="text" id="username" name="username" placeholder="Correo electrónico o usuario" required minlength="3" autocomplete="username">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accede a tu cuenta</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Google Sans', Roboto, system-ui, Arial, sans-serif;
+            background: #eef1f5;
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page {
+            width: 100%;
+        }
+
+        input {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+
+        button {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 0.6rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .errors {
+            color: #d33;
+            font-size: 0.85rem;
+            margin: 0.25rem 0;
+            padding-left: 1.1rem;
+        }
+
+        .errors[hidden] {
+            display: none;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo img {
+            width: 48px;
+            height: 48px;
+        }
+
+        .content {
+            background: #fff;
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 3rem 2.5rem 2rem;
+            border-radius: 28px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 4px 20px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+
+        .content h1 {
+            font-size: 1.6rem;
+            font-weight: 400;
+            margin: 0 0 0.5rem;
+        }
+
+        .content > p {
+            color: #444;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .content form {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            margin-top: 1.5rem;
+        }
+
+        .field-step input {
+            padding: 0.85rem 0.9rem;
+            font-size: 1rem;
+            margin-bottom: 0;
+            border: 1px solid #747775;
+            border-radius: 4px;
+        }
+
+        .content form button {
+            align-self: flex-end;
+            border-radius: 999px;
+            padding: 0.6rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            width: auto;
+            margin-top: 0.75rem;
+        }
+
+        .forgot-email {
+            display: block;
+            color: #2563eb;
+            font-size: 0.85rem;
+            text-decoration: none;
+            text-align: left;
+            margin-top: 0.75rem;
+        }
+
+        .forgot-email:hover {
+            text-decoration: underline;
+        }
+
+        .guest-note {
+            color: #444;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            text-align: left;
+            margin: 1.5rem 0 0;
+        }
+
+        .guest-note a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .guest-note a:hover {
+            text-decoration: underline;
+        }
+
+        .create-account {
+            display: block;
+            color: #2563eb;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            text-align: left;
+            margin-top: 1.5rem;
+        }
+
+        .create-account:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            max-width: 450px;
+            margin: 1.25rem auto 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #444;
+        }
+
+        .footer a {
+            color: #444;
+            text-decoration: none;
+            margin-left: 1.5rem;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .dropdown-arrow {
+            font-size: 0.6rem;
+        }
+
+        @media (max-width: 500px) {
+            .content,
+            .footer {
+                max-width: 90vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Zplix">
         </div>
-        <div class="field-step" data-step="password" hidden>
-            <input type="password" id="password" name="password" placeholder="Contraseña" required minlength="8" autocomplete="current-password">
+        <div class="content">
+            <h1>Accede a tu cuenta</h1>
+            <p>con tu cuenta de Zplix. Esta cuenta estará disponible para otras apps de Zplix en el navegador.</p>
+            <form id="loginForm" novalidate>
+                <div class="field-step" data-step="username">
+                    <input type="text" id="username" name="username" placeholder="Correo electrónico o usuario" required minlength="3" autocomplete="username">
+                </div>
+                <div class="field-step" data-step="password" hidden>
+                    <input type="password" id="password" name="password" placeholder="Contraseña" required minlength="8" autocomplete="current-password">
+                </div>
+                <ul id="login-errors" class="errors" hidden></ul>
+                <button type="button" id="next-btn">Siguiente</button>
+                <button type="submit" id="submit-btn" hidden>Entrar</button>
+            </form>
+            <a href="#" class="forgot-email">¿Olvidaste el correo electrónico?</a>
+            <p class="guest-note">¿Esta no es tu computadora? Usa el modo de invitado para navegar de forma privada. <a href="#">Más información para usar el modo de invitado</a></p>
+            <a href="{{ url_for('register_page') }}" class="create-account">Crear cuenta</a>
         </div>
-        <ul id="login-errors" class="errors" hidden></ul>
-        <button type="button" id="next-btn">Siguiente</button>
-        <button type="submit" id="submit-btn" hidden>Entrar</button>
-    </form>
-    <a href="#" class="forgot-email">¿Olvidaste el correo electrónico?</a>
-    <p class="guest-note">¿Esta no es tu computadora? Usa el modo de invitado para navegar de forma privada. <a href="#">Más información para usar el modo de invitado</a></p>
-    <a href="{{ url_for('register_page') }}" class="create-account">Crear cuenta</a>
-</div>
-<div class="footer">
-    <span>Español (Latinoamérica) <span class="dropdown-arrow">▼</span></span>
-    <a href="#">Ayuda</a>
-    <a href="#">Privacidad</a>
-    <a href="#">Condiciones</a>
-</div>
-{% endblock %}
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/validation.js') }}"></script>
-<script src="{{ url_for('static', filename='js/login.js') }}"></script>
-{% endblock %}
+        <div class="footer">
+            <span>Español (Latinoamérica) <span class="dropdown-arrow">▼</span></span>
+            <a href="#">Ayuda</a>
+            <a href="#">Privacidad</a>
+            <a href="#">Condiciones</a>
+        </div>
+    </div>
+
+    <script>
+        const CSRF_TOKEN = "{{ csrf_token() }}";
+
+        function validateUsername(username) {
+            return typeof username === "string" && username.trim().length >= 3;
+        }
+
+        function validatePassword(password) {
+            return typeof password === "string" && password.length >= 8;
+        }
+
+        function showErrors(listEl, errors) {
+            listEl.innerHTML = "";
+            if (!errors.length) {
+                listEl.hidden = true;
+                return;
+            }
+            errors.forEach((error) => {
+                const li = document.createElement("li");
+                li.textContent = error;
+                listEl.appendChild(li);
+            });
+            listEl.hidden = false;
+        }
+
+        async function postJson(endpoint, payload) {
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": CSRF_TOKEN,
+                },
+                body: JSON.stringify(payload),
+            });
+            const data = await response.json().catch(() => ({}));
+            return { ok: response.ok, data };
+        }
+
+        const passwordStep = document.querySelector('.field-step[data-step="password"]');
+        const nextBtn = document.getElementById("next-btn");
+        const submitBtn = document.getElementById("submit-btn");
+        const loginErrorsEl = document.getElementById("login-errors");
+
+        nextBtn.addEventListener("click", () => {
+            const username = document.getElementById("username").value;
+            if (!validateUsername(username)) {
+                showErrors(loginErrorsEl, ["El usuario debe tener al menos 3 caracteres."]);
+                return;
+            }
+            showErrors(loginErrorsEl, []);
+            passwordStep.hidden = false;
+            nextBtn.hidden = true;
+            submitBtn.hidden = false;
+            document.getElementById("password").focus();
+        });
+
+        document.getElementById("loginForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            const errors = [];
+            if (!validateUsername(username)) {
+                errors.push("El usuario debe tener al menos 3 caracteres.");
+            }
+            if (!validatePassword(password)) {
+                errors.push("La contraseña debe tener al menos 8 caracteres.");
+            }
+            if (errors.length) {
+                showErrors(loginErrorsEl, errors);
+                return;
+            }
+
+            const { ok, data } = await postJson("/api/login", { username, password });
+            if (!ok) {
+                showErrors(loginErrorsEl, data.errors || ["Ocurrió un error al iniciar sesión."]);
+                return;
+            }
+            window.location.href = data.redirect || "/dashboard";
+        });
+    </script>
+</body>
+</html>
